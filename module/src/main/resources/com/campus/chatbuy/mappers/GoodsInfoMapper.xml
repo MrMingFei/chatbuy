@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.chatbuy.dao.GoodsInfoDao">
+    <resultMap id="BaseResultMap" type="com.campus.chatbuy.model.GoodsInfo">
+        <id column="goodsId" jdbcType="BIGINT" property="goodsId"/>
+        <result column="userId" jdbcType="BIGINT" property="userId"/>
+        <result column="goodsName" jdbcType="VARCHAR" property="goodsName"/>
+        <result column="categoryId" jdbcType="BIGINT" property="categoryId"/>
+        <result column="originPrice" jdbcType="BIGINT" property="originPrice"/>
+        <result column="source" jdbcType="VARCHAR" property="source"/>
+        <result column="price" jdbcType="BIGINT" property="price"/>
+        <result column="payWay" jdbcType="TINYINT" property="payWay"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="readNum" jdbcType="BIGINT" property="readNum"/>
+        <result column="goodsDesc" jdbcType="LONGVARCHAR" property="goodsDesc"/>
+        <result column="createTime" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        goods_info.goodsId, goods_info.userId, goods_info.goodsName, goods_info.categoryId, goods_info.originPrice,
+        goods_info.source, goods_info.price, goods_info.payWay, goods_info.status, goods_info.readNum, goods_info.goodsDesc,
+        goods_info.createTime, goods_info.updateTime
+    </sql>
+
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from goods_info left join user_info on goods_info.userId=user_info.userId left join con_goods_tag
+        on goods_info.goodsId = con_goods_tag.goodsId where 1=1
+        <if test="tagIdList != null">
+            and con_goods_tag.tagId in
+            <foreach collection="tagIdList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="universityId != null">
+            and user_info.universityId = #{universityId}
+        </if>
+        <if test="majorId != null">
+            and user_info.majorId = #{majorId}
+        </if>
+        <if test="categoryIdList != null">
+            and goods_info.categoryId in
+            <foreach collection="categoryIdList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="goodsStatus != null">
+            and goods_info.status = #{goodsStatus}
+        </if>
+        group by goods_info.goodsId
+        order by goods_info.goodsId desc
+        limit #{startNum}, #{pageSize}
+    </select>
+
+    <select id="countByCondition" resultType="long">
+        select count(distinct goods_info.goodsId) as totalCount
+        from goods_info left join user_info on goods_info.userId=user_info.userId left join con_goods_tag
+        on goods_info.goodsId = con_goods_tag.goodsId where 1=1
+        <if test="tagIdList != null">
+            and con_goods_tag.tagId in
+            <foreach collection="tagIdList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="universityId != null">
+            and user_info.universityId = #{universityId}
+        </if>
+        <if test="majorId != null">
+            and user_info.majorId = #{majorId}
+        </if>
+        <if test="categoryIdList != null">
+            and goods_info.categoryId in
+            <foreach collection="categoryIdList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="goodsStatus != null">
+            and goods_info.status = #{goodsStatus}
+        </if>
+    </select>
+
+</mapper>

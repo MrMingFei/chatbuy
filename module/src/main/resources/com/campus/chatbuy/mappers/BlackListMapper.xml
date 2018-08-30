@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.chatbuy.dao.BlackListDao">
+    <resultMap id="BaseResultMap" type="com.campus.chatbuy.model.BlackList">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="black_user_id" jdbcType="BIGINT" property="blackUserId"/>
+        <result column="validity" jdbcType="TINYINT" property="validity"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, black_user_id, validity, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.campus.chatbuy.model.BlackList">
+        insert into black_list (user_id, black_user_id, validity, create_time, update_time)
+        values (#{userId}, #{blackUserId}, #{validity}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="checkBlack" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from black_list
+        where user_id = #{userId}
+        and black_user_id = #{blackUserId}
+    </select>
+
+    <select id="checkBlackList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from black_list
+        where user_id = #{userId}
+        and black_user_id in
+        <foreach collection="blackUserIdList" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="addBlack">
+        update black_list set validity = 1, update_time = #{updateTime}
+        where user_id = #{userId}
+        and black_user_id = #{blackUserId}
+        and validity = 0
+    </update>
+
+    <update id="deleteBlack">
+        update black_list set validity = 0, update_time = #{updateTime}
+        where user_id = #{userId}
+        and black_user_id = #{blackUserId}
+        and validity = 1
+    </update>
+
+</mapper>

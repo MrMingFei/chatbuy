@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+         http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc
+         http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop
+         http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<context:component-scan base-package="com.campus.chatbuy.action"/>
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<ref bean="stringHttpMessageConverter"/>
+			<ref bean="fastJsonHttpMessageConverter"/>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<bean id="stringHttpMessageConverter"
+		  class="org.springframework.http.converter.StringHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/plain;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="fastJsonConfig" class="com.alibaba.fastjson.support.config.FastJsonConfig">
+		<property name="charset" value="UTF-8"/>
+		<property name="serializerFeatures">
+			<list>
+				<value>QuoteFieldNames</value>
+				<value>WriteMapNullValue</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="fastJsonHttpMessageConverter"
+		  class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>application/json;charset=UTF-8</value>
+				<value>text/html;charset=UTF-8</value>
+			</list>
+		</property>
+		<!--<property name="fastJsonConfig">-->
+			<!--<bean class="com.alibaba.fastjson.support.config.FastJsonConfig">-->
+				<!--<property name="serializerFeatures">-->
+					<!--<list>-->
+						<!--<value>DisableCircularReferenceDetect</value>-->
+					<!--</list>-->
+				<!--</property>-->
+			<!--</bean>-->
+		<!--</property>-->
+	</bean>
+
+
+	<!-- ========================= VIEW DEFINITIONS ========================= -->
+	<bean id="viewResolver"
+		  class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass">
+			<value>org.springframework.web.servlet.view.JstlView</value>
+		</property>
+		<property name="prefix">
+			<value>/WEB-INF/jsp/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+		<property name="contentType">
+			<value>text/html;charset=UTF8</value>
+		</property>
+	</bean>
+
+	<bean id="multipartResolver"
+		  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize">
+			<value>2097152</value>
+		</property>
+		<property name="maxInMemorySize">
+			<value>40960</value>
+		</property>
+	</bean>
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/chatbuy/web/**"/>
+			<!-- 需排除拦截的地址 -->
+			<mvc:exclude-mapping path="/chatbuy/web/user/isExist"/>
+			<mvc:exclude-mapping path="/chatbuy/web/user/login"/>
+			<mvc:exclude-mapping path="/chatbuy/web/user/loginout"/>
+			<mvc:exclude-mapping path="/chatbuy/web/user/sendRegisterSms"/>
+			<mvc:exclude-mapping path="/chatbuy/web/user/verifyRegisterSms"/>
+			<mvc:exclude-mapping path="/chatbuy/web/user/sendSmsCode"/>
+			<mvc:exclude-mapping path="/chatbuy/web/user/verifySmsCode"/>
+			<mvc:exclude-mapping path="/chatbuy/web/user/forgetPwd"/>
+			<mvc:exclude-mapping path="/chatbuy/web/user/register"/>
+			<mvc:exclude-mapping path="/chatbuy/web/major/**"/>
+			<mvc:exclude-mapping path="/chatbuy/web/test/**"/>
+			<mvc:exclude-mapping path="/chatbuy/web/tag/**"/>
+			<mvc:exclude-mapping path="/chatbuy/web/init/**"/>
+			<mvc:exclude-mapping path="/chatbuy/web/category/**"/>
+			<mvc:exclude-mapping path="/chatbuy/web/goods/queryGoods"/>
+			<mvc:exclude-mapping path="/chatbuy/web/goods/goodsInfo"/>
+			<mvc:exclude-mapping path="/chatbuy/web/goods/userGoods"/>
+			<mvc:exclude-mapping path="/chatbuy/web/fix/**"/>
+			<mvc:exclude-mapping path="/chatbuy/web/qrcode/genLoginCode"/>
+			<mvc:exclude-mapping path="/chatbuy/web/qrcode/isCodeLogin"/>
+			<mvc:exclude-mapping path="/chatbuy/web/qrcode/codeUserInfo"/>
+
+			<bean class="com.campus.chatbuy.interceptor.LoginInterceptor"></bean>
+		</mvc:interceptor>
+
+		<mvc:interceptor>
+			<mvc:mapping path="/chatbuy/web/**"/>
+
+			<bean class="com.campus.chatbuy.interceptor.RequestInterceptor"></bean>
+		</mvc:interceptor>
+
+		<mvc:interceptor>
+			<mvc:mapping path="/chatbuy/web/goods/queryDonateGoods"/>
+			<mvc:mapping path="/chatbuy/web/goods/donateStatusCount"/>
+			<mvc:mapping path="/chatbuy/web/goods/confirmDonateGoods"/>
+			<mvc:mapping path="/chatbuy/web/goods/refuseDonateGoods"/>
+
+			<mvc:mapping path="/chatbuy/web/goods/receiveRefusedDoante"/>
+			<mvc:mapping path="/chatbuy/web/goods/receivedDonateGoods"/>
+			<mvc:mapping path="/chatbuy/web/goods/deliveryDonateGoods"/>
+			<mvc:mapping path="/chatbuy/web/goods/arrivedDonateGoods"/>
+			<mvc:mapping path="/chatbuy/web/goods/downloadToBeReceiveExcel"/>
+
+			<bean class="com.campus.chatbuy.interceptor.ConsoleInterceptor"></bean>
+		</mvc:interceptor>
+
+	</mvc:interceptors>
+
+</beans>

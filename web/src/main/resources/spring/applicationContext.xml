@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+         http://www.springframework.org/schema/context/spring-context.xsd
+         http://www.springframework.org/schema/tx
+         http://www.springframework.org/schema/tx/spring-tx.xsd
+         http://www.springframework.org/schema/aop
+         http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.campus.chatbuy.manager.*"/>
+    <context:component-scan base-package="com.campus.chatbuy.service.*"/>
+    <context:component-scan base-package="com.campus.chatbuy.dao"/>
+
+    <!-- guzzframework -->
+    <bean id="guzzContext" class="org.guzz.web.context.spring.GuzzContextBeanFactory"
+          factory-method="createGuzzContext">
+        <constructor-arg>
+            <value>classpath:guzz.xml</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="guzzBaseDao" class="org.guzz.dao.GuzzBaseDao">
+        <property name="guzzContext" ref="guzzContext"/>
+    </bean>
+
+    <!-- 事务 -->
+    <bean id="transactionManager" class="org.guzz.web.context.spring.GuzzTransactionManager">
+        <property name="guzzContext" ref="guzzContext"/>
+    </bean>
+
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="transactionPointcut"
+                      expression="execution(* com.campus.chatbuy.manager.impl.*.*(..))"/>
+        <aop:advisor pointcut-ref="transactionPointcut"
+                     advice-ref="transactionAdvice"/>
+    </aop:config>
+
+    <bean id="executorService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean">
+        <property name="serviceName" value="executorService"/>
+    </bean>
+
+    <bean id="debugService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean">
+        <property name="serviceName" value="debugService"/>
+    </bean>
+
+    <bean id="redisService" class="org.guzz.web.context.spring.GuzzServiceFactoryBean">
+        <property name="serviceName" value="redisService"/>
+    </bean>
+
+    <bean id="SpringContextUtil" class="com.campus.chatbuy.util.SpringContextUtil" />
+
+    <bean id="defaultExHandler" class="com.campus.chatbuy.exception.handler.impl.DefaultExceptionHandlerImpl"/>
+
+    <!-- 异常处理 -->
+    <bean class="com.campus.chatbuy.exception.handler.RRXSimpleMappingExceptionResolver">
+        <!-- 定义默认的异常处理页面，当该异常类型的注册时使用 -->
+        <property name="defaultErrorView" value="include/error_json"/>
+        <property name="exceptionAttribute" value="exception"/>
+        <property name="exceptionHandlerMap">
+            <map>
+                <entry key="default" value-ref="defaultExHandler"/>
+            </map>
+        </property>
+    </bean>
+
+    <import resource="classpath*:spring/applicationContext-dao.xml"/>
+
+</beans>

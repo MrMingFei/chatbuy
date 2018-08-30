@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.chatbuy.dao.DonateGoodsDao">
+    <resultMap id="BaseResultMap" type="com.campus.chatbuy.model.DonateGoods">
+        <id column="goods_id" jdbcType="BIGINT" property="goodsId"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="delivery_type" jdbcType="TINYINT" property="deliveryType"/>
+        <result column="pick_place" jdbcType="VARCHAR" property="pickPlace"/>
+        <result column="pick_time_week" jdbcType="TINYINT" property="pickTimeWeek"/>
+        <result column="pick_time_day" jdbcType="TINYINT" property="pickTimeDay"/>
+        <result column="donate_status" jdbcType="TINYINT" property="donateStatus"/>
+        <result column="refuse_reason" jdbcType="VARCHAR" property="refuseReason"/>
+        <result column="refuse_time" jdbcType="TIMESTAMP" property="refuseTime"/>
+        <result column="delivery_time" jdbcType="TIMESTAMP" property="deliveryTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        goods_id, user_id, delivery_type, pick_place, pick_time_week, pick_time_day, donate_status,
+        refuse_reason, refuse_time, delivery_time, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.campus.chatbuy.model.DonateGoods">
+        insert into donate_goods (goods_id, user_id, delivery_type, pick_place, pick_time_week,
+        pick_time_day, donate_status, create_time, update_time)
+        values (#{goodsId}, #{userId}, #{deliveryType}, #{pickPlace}, #{pickTimeWeek},
+        #{pickTimeDay}, #{donateStatus}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="countAll" resultType="java.lang.Long">
+        select count(*) from donate_goods
+    </select>
+
+    <select id="queryGoods" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" />
+        from donate_goods
+        order by goods_id desc
+        limit #{start}, #{offset}
+    </select>
+
+    <select id="countByUser" resultType="java.lang.Long">
+        select count(*) from donate_goods
+        where user_id = #{userId}
+    </select>
+
+    <select id="countByStatus" resultType="java.lang.Long">
+        select count(*) from donate_goods
+        where donate_status = #{donateStatus}
+    </select>
+
+    <select id="countByStatusList" resultType="java.lang.Long">
+        select count(*) from donate_goods
+        where donate_status in
+        <foreach collection="donateStatus" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="queryGoodsByUser" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" />
+        from donate_goods
+        where user_id = #{userId}
+        order by goods_id desc
+        limit #{start}, #{pageSize}
+    </select>
+
+    <select id="queryGoodsByStatus" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" />
+        from donate_goods
+        where donate_status in
+        <foreach collection="donateStatus" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        order by goods_id desc
+        limit #{startNum}, #{pageSize}
+    </select>
+
+    <select id="queryCurrentStatus" resultType="java.lang.Integer">
+        select donate_status
+        from donate_goods
+        where goods_id = #{goodsId}
+    </select>
+
+    <update id="updateStatus">
+        update donate_goods
+        set
+        donate_status = #{donateStatus},
+        update_time = #{updateTime}
+        where goods_id = #{goodsId}
+    </update>
+
+    <update id="updateStatusDelivered">
+        update donate_goods
+        set
+        donate_status = #{donateStatus},
+        update_time = #{updateTime},
+        delivery_time = #{deliveryTime}
+        where goods_id = #{goodsId}
+    </update>
+
+    <update id="updateStatusRefuse">
+        update donate_goods
+        set
+        donate_status = #{donateStatus},
+        update_time = #{updateTime},
+        refuse_reason = #{refuseReason},
+        refuse_time = #{refuseTime}
+        where goods_id = #{goodsId}
+    </update>
+
+</mapper>

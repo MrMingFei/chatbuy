@@ -1,0 +1,53 @@
+curl -XPUT "http://127.0.0.1:9200/goods?pretty" -d '
+{
+    "mappings": {
+        "goods": {
+            "properties": {
+                "createTime" : {
+                    "type" : "date"
+                },
+                "goodsId": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "goodsName": {
+                    "type": "string",
+                    "index": "analyzed",
+                    "analyzer": "ik_max_word",
+                    "search_analyzer": "ik_max_word"
+                },
+                "goodsDesc": {
+                    "type": "string",
+                    "index": "analyzed",
+                    "analyzer": "ik_max_word",
+                    "search_analyzer": "ik_max_word"
+                },
+                "goodsStatus": {
+                    "type": "integer",
+                    "index": "not_analyzed"
+                },
+                "userId": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "categoryId": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "universityId": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "majorId": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "tagIdList": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                }
+            }
+        }
+    }
+}
+'
